@@ -256,6 +256,73 @@ export class FlashcardList implements OnInit, OnDestroy {
     }
 
     /**
+     * Navigate to first page
+     */
+    goToFirstPage(): void {
+        this.goToPage(1);
+    }
+
+    /**
+     * Navigate to last page
+     */
+    goToLastPage(): void {
+        this.goToPage(this.getTotalPages());
+    }
+
+    /**
+     * Get visible page numbers for pagination
+     */
+    getVisiblePages(): number[] {
+        const totalPages = this.getTotalPages();
+        const maxVisiblePages = 5; // Show maximum 5 page numbers
+        const currentPage = this.currentPage;
+        
+        if (totalPages <= maxVisiblePages) {
+            // If total pages is less than or equal to max, show all pages
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+        
+        const visiblePages: number[] = [];
+        const halfVisible = Math.floor(maxVisiblePages / 2);
+        
+        let startPage = Math.max(1, currentPage - halfVisible);
+        let endPage = Math.min(totalPages, currentPage + halfVisible);
+        
+        // Adjust if we're near the beginning
+        if (currentPage <= halfVisible) {
+            endPage = Math.min(totalPages, maxVisiblePages);
+        }
+        
+        // Adjust if we're near the end
+        if (currentPage > totalPages - halfVisible) {
+            startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+        }
+        
+        // Always show first page if not already visible
+        if (startPage > 1) {
+            visiblePages.push(1);
+            if (startPage > 2) {
+                visiblePages.push(-1); // Ellipsis indicator
+            }
+        }
+        
+        // Add the range of pages
+        for (let i = startPage; i <= endPage; i++) {
+            visiblePages.push(i);
+        }
+        
+        // Always show last page if not already visible
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                visiblePages.push(-1); // Ellipsis indicator
+            }
+            visiblePages.push(totalPages);
+        }
+        
+        return visiblePages;
+    }
+
+    /**
      * Show quick preview with delay to prevent conflicts
      */
     showPreview(flashcard: Flashcard, event: Event): void {

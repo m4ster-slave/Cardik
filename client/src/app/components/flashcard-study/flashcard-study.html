@@ -1,4 +1,24 @@
 <div class="study-container">
+    <!-- Header -->
+    <header class="study-header">
+        <div class="header-left">
+            <button class="btn btn-secondary" (click)="endSession()">
+                ← Back to Flashcards
+            </button>
+        </div>
+
+        <div class="header-center">
+            <h1 class="study-title">📚 Study Mode</h1>
+        </div>
+
+        <div class="header-right">
+            <button class="btn btn-outline" (click)="restartSession()" *ngIf="sessionStarted" 
+                    title="Start over from the beginning (Press R)">
+                🔄 Start Over
+            </button>
+        </div>
+    </header>
+
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-container">
         <div class="spinner"></div>
@@ -26,7 +46,7 @@
             <div class="study-features">
                 <div class="feature">
                     <span class="feature-icon">🔀</span>
-                    <span>Cards will be shuffled</span>
+                    <span>Cards in random order</span>
                 </div>
                 <div class="feature">
                     <span class="feature-icon">⌨️</span>
@@ -35,6 +55,10 @@
                 <div class="feature">
                     <span class="feature-icon">📊</span>
                     <span>Track your progress</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">🎯</span>
+                    <span>No skipping allowed</span>
                 </div>
             </div>
 
@@ -50,10 +74,6 @@
                         <span>Flip card</span>
                     </div>
                     <div class="shortcut">
-                        <kbd>←</kbd> <kbd>→</kbd>
-                        <span>Navigate</span>
-                    </div>
-                    <div class="shortcut">
                         <kbd>C</kbd>
                         <span>Mark correct</span>
                     </div>
@@ -63,7 +83,7 @@
                     </div>
                     <div class="shortcut">
                         <kbd>R</kbd>
-                        <span>Restart</span>
+                        <span>Start over</span>
                     </div>
                     <div class="shortcut">
                         <kbd>Esc</kbd>
@@ -138,19 +158,18 @@
             </div>
         </div>
 
-        <!-- Navigation Controls -->
+        <!-- Study Controls -->
         <div class="study-controls">
-            <div class="navigation-controls">
-                <button class="btn btn-secondary" (click)="previousCard()" [disabled]="isFirstCard()">
-                    ← Previous
-                </button>
-
-                <button class="btn btn-outline" (click)="flipCard()">
+            <div class="flip-controls">
+                <button class="btn btn-outline btn-large" (click)="flipCard()">
                     {{ isFlipped ? '🔄 Show Term' : '🔄 Show Definition' }}
                 </button>
+            </div>
 
-                <button class="btn btn-secondary" (click)="nextCard()" [disabled]="isLastCard()">
-                    Next →
+            <!-- Start Over Button -->
+            <div class="restart-controls">
+                <button class="btn btn-warning" (click)="restartSession()" title="Start over from the beginning (Press R)">
+                    🔄 Start Over
                 </button>
             </div>
 
@@ -168,18 +187,8 @@
             </div>
         </div>
 
-        <!-- Card Progress Dots -->
-        <div class="card-progress" *ngIf="flashcards.length <= 20">
-            <div class="progress-dots">
-                <button *ngFor="let card of flashcards; let i = index" class="progress-dot"
-                    [class.active]="i === currentIndex" [class.completed]="i < currentIndex" (click)="goToCard(i)"
-                    [title]="'Card ' + (i + 1) + ': ' + card.term">
-                </button>
-            </div>
-        </div>
-
         <!-- Session Complete -->
-        <div *ngIf="isLastCard() && isFlipped && cardsStudied === flashcards.length" class="session-complete">
+        <div *ngIf="currentIndex === flashcards.length - 1 && isFlipped && cardsStudied === flashcards.length" class="session-complete">
             <div class="complete-card">
                 <div class="complete-icon">🎉</div>
                 <h2>Session Complete!</h2>

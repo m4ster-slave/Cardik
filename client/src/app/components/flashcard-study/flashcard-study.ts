@@ -96,34 +96,12 @@ export class FlashcardStudy implements OnInit, OnDestroy {
     }
 
     /**
-     * Move to the next flashcard
+     * Move to the next flashcard (only called when answering)
      */
-    nextCard(): void {
+    private nextCard(): void {
         if (this.currentIndex < this.flashcards.length - 1) {
             this.currentIndex++;
             this.currentFlashcard = this.flashcards[this.currentIndex];
-            this.isFlipped = false;
-        }
-    }
-
-    /**
-     * Move to the previous flashcard
-     */
-    previousCard(): void {
-        if (this.currentIndex > 0) {
-            this.currentIndex--;
-            this.currentFlashcard = this.flashcards[this.currentIndex];
-            this.isFlipped = false;
-        }
-    }
-
-    /**
-     * Go to a specific card by index
-     */
-    goToCard(index: number): void {
-        if (index >= 0 && index < this.flashcards.length) {
-            this.currentIndex = index;
-            this.currentFlashcard = this.flashcards[index];
             this.isFlipped = false;
         }
     }
@@ -154,6 +132,17 @@ export class FlashcardStudy implements OnInit, OnDestroy {
      * Restart the study session
      */
     restartSession(): void {
+        const hasProgress = this.cardsStudied > 0;
+        
+        if (hasProgress) {
+            const confirmRestart = confirm(
+                'Are you sure you want to start over? This will reset all your progress in this session.'
+            );
+            if (!confirmRestart) {
+                return;
+            }
+        }
+        
         this.startStudySession();
     }
 
@@ -177,14 +166,6 @@ export class FlashcardStudy implements OnInit, OnDestroy {
             case 'Space':
                 event.preventDefault();
                 this.flipCard();
-                break;
-            case 'ArrowRight':
-                event.preventDefault();
-                this.nextCard();
-                break;
-            case 'ArrowLeft':
-                event.preventDefault();
-                this.previousCard();
                 break;
             case 'KeyR':
                 event.preventDefault();
@@ -233,19 +214,5 @@ export class FlashcardStudy implements OnInit, OnDestroy {
         const now = new Date();
         const diff = now.getTime() - this.studyStartTime.getTime();
         return Math.round(diff / (1000 * 60)); // Convert to minutes
-    }
-
-    /**
-     * Check if this is the last card
-     */
-    isLastCard(): boolean {
-        return this.currentIndex === this.flashcards.length - 1;
-    }
-
-    /**
-     * Check if this is the first card
-     */
-    isFirstCard(): boolean {
-        return this.currentIndex === 0;
     }
 }
