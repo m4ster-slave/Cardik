@@ -28,15 +28,7 @@
             </div>
 
             <div class="navbar-actions">
-                <a routerLink="/flashcards" routerLinkActive="active" class="nav-link">
-                    <span class="nav-icon">📚</span>
-                    <span class="nav-text">All Flashcards</span>
-                </a>
 
-                <a routerLink="/study" routerLinkActive="active" class="nav-link">
-                    <span class="nav-icon">🎯</span>
-                    <span class="nav-text">Study Mode</span>
-                </a>
 
                 <ng-container *ngIf="isFlashcardsRoute">
                     <button class="btn-nav btn-secondary" (click)="refresh()" title="Refresh flashcards">
@@ -50,6 +42,16 @@
                         <span class="btn-text">{{ showForm ? 'Cancel' : 'Add' }}</span>
                     </button>
                 </ng-container>
+
+                <a routerLink="/flashcards" routerLinkActive="active" class="nav-link">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">All Flashcards</span>
+                </a>
+
+                <a routerLink="/study" routerLinkActive="active" class="nav-link">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Study Mode</span>
+                </a>
             </div>
         </div>
 
