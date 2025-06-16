@@ -26,10 +26,6 @@ export class FlashcardService {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
 
-  // View mode state management
-  private viewModeSubject = new BehaviorSubject<'grid' | 'compact'>('grid');
-  public viewMode$ = this.viewModeSubject.asObservable();
-
   // Form visibility state management
   private showFormSubject = new BehaviorSubject<boolean>(false);
   public showForm$ = this.showFormSubject.asObservable();
@@ -141,21 +137,6 @@ export class FlashcardService {
   }
 
   /**
-   * Toggle view mode between grid and compact
-   */
-  toggleViewMode(): void {
-    const currentMode = this.viewModeSubject.value;
-    this.viewModeSubject.next(currentMode === 'grid' ? 'compact' : 'grid');
-  }
-
-  /**
-   * Set view mode
-   */
-  setViewMode(mode: 'grid' | 'compact'): void {
-    this.viewModeSubject.next(mode);
-  }
-
-  /**
    * Toggle form visibility
    */
   toggleForm(): void {
@@ -195,13 +176,6 @@ export class FlashcardService {
    */
   getCurrentSearchTerm(): string {
     return this.searchTermSubject.value;
-  }
-
-  /**
-   * Get current view mode
-   */
-  getCurrentViewMode(): 'grid' | 'compact' {
-    return this.viewModeSubject.value;
   }
 
   /**
