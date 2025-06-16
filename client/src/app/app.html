@@ -39,11 +39,6 @@
                 </a>
 
                 <ng-container *ngIf="isFlashcardsRoute">
-                    <button class="btn-nav btn-outline" (click)="toggleViewMode()" title="Toggle view mode">
-                        <span class="btn-icon">{{ viewMode === 'grid' ? '📋' : '🔲' }}</span>
-                        <span class="btn-text">{{ viewMode === 'grid' ? 'Compact' : 'Grid' }}</span>
-                    </button>
-
                     <button class="btn-nav btn-secondary" (click)="refresh()" title="Refresh flashcards">
                         <span class="btn-icon">🔄</span>
                         <span class="btn-text">Refresh</span>

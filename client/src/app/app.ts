@@ -14,7 +14,6 @@ export class App implements OnInit, OnDestroy {
   protected title = 'Flashcard App';
 
   searchTerm = '';
-  viewMode: 'grid' | 'compact' = 'grid';
   showForm = false;
   sortBy: 'term' | 'definition' | 'created' | 'updated' = 'created';
 
@@ -26,13 +25,6 @@ export class App implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // Subscribe to view mode changes from the service
-    this.flashcardService.viewMode$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(mode => {
-        this.viewMode = mode;
-      });
-
     // Subscribe to form visibility changes from the service
     this.flashcardService.showForm$
       .pipe(takeUntil(this.destroy$))
@@ -58,10 +50,6 @@ export class App implements OnInit, OnDestroy {
 
   toggleForm(): void {
     this.flashcardService.toggleForm();
-  }
-
-  toggleViewMode(): void {
-    this.flashcardService.toggleViewMode();
   }
 
   refresh(): void {

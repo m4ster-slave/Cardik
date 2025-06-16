@@ -1,23 +1,4 @@
 <div class="study-container">
-    <!-- Header -->
-    <header class="study-header">
-        <div class="header-left">
-            <button class="btn btn-secondary" (click)="endSession()">
-                ← Back to Flashcards
-            </button>
-        </div>
-
-        <div class="header-center">
-            <h1 class="study-title">📚 Study Mode</h1>
-        </div>
-
-        <div class="header-right">
-            <button class="btn btn-outline" (click)="restartSession()" *ngIf="sessionStarted">
-                🔄 Restart
-            </button>
-        </div>
-    </header>
-
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-container">
         <div class="spinner"></div>

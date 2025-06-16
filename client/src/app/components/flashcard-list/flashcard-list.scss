@@ -237,16 +237,7 @@
   margin-bottom: 2rem;
 }
 
-.flashcards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
 
 // Compact View Styles
 .flashcards-compact {
@@ -373,81 +364,6 @@
   }
 }
 
-.flashcard-item {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    border-color: #667eea;
-  }
-}
-
-.flashcard-content {
-  flex: 1;
-  margin-bottom: 1rem;
-}
-
-.flashcard-term {
-  margin-bottom: 1rem;
-
-  h3 {
-    color: #2c3e50;
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-}
-
-.flashcard-definition {
-  margin-bottom: 1rem;
-
-  p {
-    color: #495057;
-    margin: 0;
-    line-height: 1.6;
-  }
-}
-
-.flashcard-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  small {
-    color: #6c757d;
-    font-size: 0.8rem;
-
-    &.created-date {
-      color: #28a745;
-    }
-
-    &.updated-date {
-      color: #ffc107;
-    }
-  }
-}
-
-.flashcard-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-
-  .btn {
-    min-width: auto;
-  }
-}
-
 .stats-container {
   display: flex;
   justify-content: center;
@@ -476,85 +392,15 @@
   }
 }
 
-// Study Mode Banner
-.study-mode-banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
-  @media (max-width: 768px) {
-    padding: 1.5rem;
-  }
-}
 
-.study-banner-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-}
 
-.study-banner-info {
-  h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 600;
 
-    @media (max-width: 768px) {
-      font-size: 1.25rem;
-    }
-  }
 
-  p {
-    margin: 0;
-    opacity: 0.9;
-    font-size: 1rem;
-
-    @media (max-width: 768px) {
-      font-size: 0.9rem;
-    }
-  }
-}
-
-.btn-study {
-  background: rgba(255, 255, 255, 0.9);
-  color: #667eea;
-  font-weight: 600;
-  padding: 1rem 2rem;
-  font-size: 1rem;
-  white-space: nowrap;
-
-  &:hover {
-    background: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.4);
-  }
-
-  @media (max-width: 768px) {
-    padding: 0.875rem 1.5rem;
-    font-size: 0.9rem;
-  }
-}
 
 // Responsive adjustments
 @media (max-width: 480px) {
-  .flashcard-item {
-    padding: 1rem;
-  }
-
-  .flashcard-term h3 {
-    font-size: 1.1rem;
-  }
-
   .page-title {
     font-size: 1.75rem;
   }

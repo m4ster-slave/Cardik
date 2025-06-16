@@ -19,9 +19,6 @@ export class FlashcardList implements OnInit, OnDestroy {
     showForm = false;
     editingFlashcard: Flashcard | null = null;
 
-    // View mode: 'grid' or 'compact'
-    viewMode: 'grid' | 'compact' = 'grid';
-
     // Search and filtering
     searchTerm = '';
     sortBy: 'term' | 'definition' | 'created' | 'updated' = 'created';
@@ -55,13 +52,6 @@ export class FlashcardList implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe(loading => {
                 this.loading = loading;
-            });
-
-        // Subscribe to view mode changes from service
-        this.flashcardService.viewMode$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(mode => {
-                this.viewMode = mode;
             });
 
         // Subscribe to form visibility changes from service
@@ -163,13 +153,6 @@ export class FlashcardList implements OnInit, OnDestroy {
      */
     trackByFlashcardId(index: number, flashcard: Flashcard): number {
         return flashcard.id;
-    }
-
-    /**
-     * Toggle between grid and compact view modes
-     */
-    toggleViewMode(): void {
-        this.viewMode = this.viewMode === 'grid' ? 'compact' : 'grid';
     }
 
     /**

@@ -14,19 +14,6 @@
 
   <!-- Flashcards Display -->
   <div class="flashcards-container" *ngIf="!loading">
-    <!-- Study Mode Button -->
-    <div *ngIf="flashcards.length > 0" class="study-mode-banner">
-      <div class="study-banner-content">
-        <div class="study-banner-info">
-          <h3>🎯 Ready to Study?</h3>
-          <p>Practice all {{ flashcards.length }} flashcard{{ flashcards.length !== 1 ? 's' : '' }} in study mode</p>
-        </div>
-        <button class="btn btn-primary btn-study" routerLink="/study">
-          Start Study Session
-        </button>
-      </div>
-    </div>
-
     <div *ngIf="flashcards.length === 0" class="empty-state">
       <div class="empty-icon">📝</div>
       <h3>No flashcards yet</h3>
@@ -46,44 +33,8 @@
       </button>
     </div>
 
-    <!-- Grid View -->
-    <div *ngIf="filteredFlashcards.length > 0 && viewMode === 'grid'" class="flashcards-grid">
-      <div *ngFor="let flashcard of getPaginatedFlashcards(); trackBy: trackByFlashcardId" class="flashcard-item"
-        [routerLink]="['/flashcards', flashcard.id]" (mouseenter)="showPreview(flashcard, $event)"
-        (mouseleave)="hidePreview()">
-
-        <div class="flashcard-content">
-          <div class="flashcard-term">
-            <h3>{{ flashcard.term }}</h3>
-          </div>
-
-          <div class="flashcard-definition">
-            <p>{{ flashcard.definition }}</p>
-          </div>
-
-          <div class="flashcard-meta">
-            <small class="created-date">
-              Created: {{ flashcard.createdAt | date:'short' }}
-            </small>
-            <small class="updated-date" *ngIf="flashcard.updatedAt !== flashcard.createdAt">
-              Updated: {{ flashcard.updatedAt | date:'short' }}
-            </small>
-          </div>
-        </div>
-
-        <div class="flashcard-actions" (click)="$event.stopPropagation()">
-          <button class="btn btn-sm btn-outline" (click)="editFlashcard(flashcard)" title="Edit flashcard">
-            ✏️
-          </button>
-          <button class="btn btn-sm btn-danger" (click)="deleteFlashcard(flashcard.id)" title="Delete flashcard">
-            🗑️
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- Compact View -->
-    <div *ngIf="filteredFlashcards.length > 0 && viewMode === 'compact'" class="flashcards-compact">
+    <div *ngIf="filteredFlashcards.length > 0" class="flashcards-compact">
       <div class="compact-header">
         <div class="compact-col-term">Term</div>
         <div class="compact-col-definition">Definition</div>
