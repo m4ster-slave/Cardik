@@ -94,7 +94,7 @@ export class FlashcardList implements OnInit, OnDestroy {
      * Toggle the visibility of the form
      */
     toggleForm(): void {
-        this.showForm = !this.showForm;
+        this.flashcardService.toggleForm();
         if (!this.showForm) {
             this.editingFlashcard = null;
         }
@@ -105,7 +105,7 @@ export class FlashcardList implements OnInit, OnDestroy {
      */
     editFlashcard(flashcard: Flashcard): void {
         this.editingFlashcard = flashcard;
-        this.showForm = true;
+        this.flashcardService.setFormVisibility(true);
     }
 
     /**
@@ -129,7 +129,7 @@ export class FlashcardList implements OnInit, OnDestroy {
      * Handle form submission
      */
     onFormSubmitted(): void {
-        this.showForm = false;
+        this.flashcardService.setFormVisibility(false);
         this.editingFlashcard = null;
     }
 
@@ -137,7 +137,7 @@ export class FlashcardList implements OnInit, OnDestroy {
      * Handle form cancellation
      */
     onFormCancelled(): void {
-        this.showForm = false;
+        this.flashcardService.setFormVisibility(false);
         this.editingFlashcard = null;
     }
 
