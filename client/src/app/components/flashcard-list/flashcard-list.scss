@@ -291,16 +291,22 @@
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #f1f3f4;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, border-left-color 0.15s ease;
   align-items: center;
+  will-change: background-color, border-left-color;
+  border-left: 4px solid transparent;
 
   &:hover {
-    background: #f8f9fa;
-    border-left: 4px solid #667eea;
+    background-color: #f8f9fa;
+    border-left-color: #667eea;
   }
 
   &.even {
-    background: #fdfdfd;
+    background-color: #fdfdfd;
+    
+    &:hover {
+      background-color: #f8f9fa;
+    }
   }
 
   &:last-child {

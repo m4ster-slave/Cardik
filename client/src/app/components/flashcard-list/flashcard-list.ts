@@ -30,6 +30,7 @@ export class FlashcardList implements OnInit, OnDestroy {
 
     // Quick preview
     previewFlashcard: Flashcard | null = null;
+    private previewTimeout: any = null;
 
     // Make Math available in template
     Math = Math;
@@ -86,6 +87,11 @@ export class FlashcardList implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        // Clear preview timeout
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
+        
         this.destroy$.next();
         this.destroy$.complete();
     }
@@ -250,17 +256,32 @@ export class FlashcardList implements OnInit, OnDestroy {
     }
 
     /**
-     * Show quick preview
+     * Show quick preview with delay to prevent conflicts
      */
     showPreview(flashcard: Flashcard, event: Event): void {
         event.stopPropagation();
-        this.previewFlashcard = flashcard;
+        
+        // Clear any existing timeout
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+        }
+        
+        // Show preview after a short delay to prevent flickering
+        this.previewTimeout = setTimeout(() => {
+            this.previewFlashcard = flashcard;
+        }, 500); // 500ms delay
     }
 
     /**
      * Hide quick preview
      */
     hidePreview(): void {
+        // Clear timeout if preview hasn't shown yet
+        if (this.previewTimeout) {
+            clearTimeout(this.previewTimeout);
+            this.previewTimeout = null;
+        }
+        
         this.previewFlashcard = null;
     }
 

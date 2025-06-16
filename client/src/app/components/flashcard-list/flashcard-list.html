@@ -43,8 +43,7 @@
       </div>
 
       <div *ngFor="let flashcard of getPaginatedFlashcards(); trackBy: trackByFlashcardId; let i = index"
-        class="compact-item" [class.even]="i % 2 === 0" [routerLink]="['/flashcards', flashcard.id]"
-        (mouseenter)="showPreview(flashcard, $event)" (mouseleave)="hidePreview()">
+        class="compact-item" [class.even]="i % 2 === 0" [routerLink]="['/flashcards', flashcard.id]">
 
         <div class="compact-col-term" [title]="flashcard.term">
           <strong>{{ truncateText(flashcard.term, 30) }}</strong>
