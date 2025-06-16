@@ -1,0 +1,90 @@
+<div class="flashcard-detail-container">
+  <!-- Header -->
+  <header class="detail-header">
+    <button class="btn btn-secondary" (click)="goBack()">
+      ← Back to Flashcards
+    </button>
+
+    <div class="header-actions" *ngIf="flashcard && !loading">
+      <button class="btn btn-outline" (click)="editFlashcard()" title="Edit flashcard">
+        ✏️ Edit
+      </button>
+      <button class="btn btn-danger" (click)="deleteFlashcard()" title="Delete flashcard">
+        🗑️ Delete
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading flashcard...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Error Loading Flashcard</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">
+      Go Back
+    </button>
+  </div>
+
+  <!-- Flashcard Display -->
+  <div *ngIf="flashcard && !loading && !error" class="flashcard-display">
+    <!-- Instructions -->
+    <div class="instructions">
+      <p>Click the card or press <kbd>Space</kbd> to flip it!</p>
+    </div>
+
+    <!-- Flashcard -->
+    <div class="flashcard-3d" [class.flipped]="isFlipped" (click)="flipCard()" (keydown)="onKeydown($event)"
+      tabindex="0" role="button" [attr.aria-label]="isFlipped ? 'Show term' : 'Show definition'">
+
+      <!-- Front Side (Term) -->
+      <div class="flashcard-face flashcard-front">
+        <div class="card-type">Term</div>
+        <div class="card-content">
+          <h2>{{ flashcard.term }}</h2>
+        </div>
+        <div class="card-hint">Click to reveal answer</div>
+      </div>
+
+      <!-- Back Side (Definition) -->
+      <div class="flashcard-face flashcard-back">
+        <div class="card-type">Definition</div>
+        <div class="card-content">
+          <p>{{ flashcard.definition }}</p>
+        </div>
+        <div class="card-hint">Click to show term</div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flashcard-controls">
+      <button class="btn btn-primary" (click)="flipCard()">
+        {{ isFlipped ? '🔄 Show Term' : '🔄 Show Definition' }}
+      </button>
+      <button class="btn btn-secondary" (click)="resetCard()" [disabled]="!isFlipped">
+        ↺ Reset
+      </button>
+    </div>
+
+    <!-- Metadata -->
+    <div class="flashcard-metadata">
+      <div class="metadata-item">
+        <span class="metadata-label">Created:</span>
+        <span class="metadata-value">{{ flashcard.createdAt | date:'medium' }}</span>
+      </div>
+      <div class="metadata-item" *ngIf="flashcard.updatedAt !== flashcard.createdAt">
+        <span class="metadata-label">Last Updated:</span>
+        <span class="metadata-value">{{ flashcard.updatedAt | date:'medium' }}</span>
+      </div>
+      <div class="metadata-item">
+        <span class="metadata-label">ID:</span>
+        <span class="metadata-value">#{{ flashcard.id }}</span>
+      </div>
+    </div>
+  </div>
+</div>

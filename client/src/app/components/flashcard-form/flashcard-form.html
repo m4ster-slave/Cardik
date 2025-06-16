@@ -1,0 +1,76 @@
+<div class="flashcard-form-container">
+  <div class="form-header">
+    <h2>{{ isEditing ? 'Edit Flashcard' : 'Create New Flashcard' }}</h2>
+    <p class="form-description">
+      {{ isEditing ? 'Update the flashcard information below.' : 'Fill in the term and definition to create a new
+      flashcard.' }}
+    </p>
+  </div>
+
+  <form [formGroup]="flashcardForm" (ngSubmit)="onSubmit()" class="flashcard-form">
+    <!-- Term Field -->
+    <div class="form-group">
+      <label for="term" class="form-label">
+        Term / Question <span class="required">*</span>
+      </label>
+      <input type="text" id="term" formControlName="term" class="form-control" [class.error]="hasError('term')"
+        placeholder="Enter the term or question..." maxlength="200">
+
+      <div class="form-feedback">
+        <div class="error-message" *ngIf="hasError('term')">
+          {{ getErrorMessage('term') }}
+        </div>
+        <div class="char-count">
+          {{ flashcardForm.get('term')?.value?.length || 0 }}/200
+        </div>
+      </div>
+    </div>
+
+    <!-- Definition Field -->
+    <div class="form-group">
+      <label for="definition" class="form-label">
+        Definition / Answer <span class="required">*</span>
+      </label>
+      <textarea id="definition" formControlName="definition" class="form-control textarea"
+        [class.error]="hasError('definition')" placeholder="Enter the definition or answer..." rows="4"
+        maxlength="1000">
+      </textarea>
+
+      <div class="form-feedback">
+        <div class="error-message" *ngIf="hasError('definition')">
+          {{ getErrorMessage('definition') }}
+        </div>
+        <div class="char-count">
+          {{ flashcardForm.get('definition')?.value?.length || 0 }}/1000
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+        Cancel
+      </button>
+
+      <button type="submit" class="btn btn-primary" [disabled]="flashcardForm.invalid || isSubmitting">
+        <span *ngIf="isSubmitting" class="spinner-sm"></span>
+        {{ isSubmitting ? 'Saving...' : (isEditing ? 'Update Flashcard' : 'Create Flashcard') }}
+      </button>
+    </div>
+  </form>
+
+  <!-- Preview Card -->
+  <div class="preview-section" *ngIf="flashcardForm.get('term')?.value || flashcardForm.get('definition')?.value">
+    <h3>Preview</h3>
+    <div class="preview-card">
+      <div class="preview-term">
+        <strong>Term:</strong>
+        <span>{{ flashcardForm.get('term')?.value || 'Enter a term...' }}</span>
+      </div>
+      <div class="preview-definition">
+        <strong>Definition:</strong>
+        <span>{{ flashcardForm.get('definition')?.value || 'Enter a definition...' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

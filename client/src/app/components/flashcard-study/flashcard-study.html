@@ -1,0 +1,233 @@
+<div class="study-container">
+    <!-- Header -->
+    <header class="study-header">
+        <div class="header-left">
+            <button class="btn btn-secondary" (click)="endSession()">
+                ← Back to Flashcards
+            </button>
+        </div>
+
+        <div class="header-center">
+            <h1 class="study-title">📚 Study Mode</h1>
+        </div>
+
+        <div class="header-right">
+            <button class="btn btn-outline" (click)="restartSession()" *ngIf="sessionStarted">
+                🔄 Restart
+            </button>
+        </div>
+    </header>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading flashcards...</p>
+    </div>
+
+    <!-- No Flashcards -->
+    <div *ngIf="!loading && flashcards.length === 0" class="empty-state">
+        <div class="empty-icon">📝</div>
+        <h3>No flashcards to study</h3>
+        <p>Create some flashcards first to start studying!</p>
+        <button class="btn btn-primary" (click)="endSession()">
+            Go to Flashcards
+        </button>
+    </div>
+
+    <!-- Study Session Not Started -->
+    <div *ngIf="!loading && flashcards.length > 0 && !sessionStarted" class="session-start">
+        <div class="start-card">
+            <div class="start-icon">🎯</div>
+            <h2>Ready to Study?</h2>
+            <p>You have <strong>{{ flashcards.length }}</strong> flashcard{{ flashcards.length !== 1 ? 's' : '' }} to
+                study.</p>
+
+            <div class="study-features">
+                <div class="feature">
+                    <span class="feature-icon">🔀</span>
+                    <span>Cards will be shuffled</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">⌨️</span>
+                    <span>Use keyboard shortcuts</span>
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">📊</span>
+                    <span>Track your progress</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" (click)="startStudySession()">
+                Start Studying
+            </button>
+
+            <div class="keyboard-shortcuts">
+                <h4>Keyboard Shortcuts</h4>
+                <div class="shortcuts-grid">
+                    <div class="shortcut">
+                        <kbd>Space</kbd>
+                        <span>Flip card</span>
+                    </div>
+                    <div class="shortcut">
+                        <kbd>←</kbd> <kbd>→</kbd>
+                        <span>Navigate</span>
+                    </div>
+                    <div class="shortcut">
+                        <kbd>C</kbd>
+                        <span>Mark correct</span>
+                    </div>
+                    <div class="shortcut">
+                        <kbd>X</kbd>
+                        <span>Mark incorrect</span>
+                    </div>
+                    <div class="shortcut">
+                        <kbd>R</kbd>
+                        <span>Restart</span>
+                    </div>
+                    <div class="shortcut">
+                        <kbd>Esc</kbd>
+                        <span>Exit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Session Active -->
+    <div *ngIf="!loading && sessionStarted && currentFlashcard" class="study-session">
+        <!-- Progress Bar -->
+        <div class="progress-section">
+            <div class="progress-info">
+                <span class="progress-text">
+                    Card {{ currentIndex + 1 }} of {{ flashcards.length }}
+                </span>
+                <span class="progress-percentage">{{ getProgress() }}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getProgress()"></div>
+            </div>
+        </div>
+
+        <!-- Study Stats -->
+        <div class="study-stats" *ngIf="cardsStudied > 0">
+            <div class="stat">
+                <span class="stat-number">{{ cardsStudied }}</span>
+                <span class="stat-label">Studied</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number correct">{{ correctAnswers }}</span>
+                <span class="stat-label">Correct</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number incorrect">{{ incorrectAnswers }}</span>
+                <span class="stat-label">Incorrect</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ getAccuracy() }}%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">{{ getSessionDuration() }}m</span>
+                <span class="stat-label">Time</span>
+            </div>
+        </div>
+
+        <!-- Flashcard Display -->
+        <div class="flashcard-container">
+            <div class="flashcard-3d" [class.flipped]="isFlipped" (click)="flipCard()" tabindex="0" role="button"
+                [attr.aria-label]="isFlipped ? 'Show term' : 'Show definition'">
+
+                <!-- Front Side (Term) -->
+                <div class="flashcard-face flashcard-front">
+                    <div class="card-type">Term</div>
+                    <div class="card-content">
+                        <h2>{{ currentFlashcard.term }}</h2>
+                    </div>
+                    <div class="card-hint">Press Space or click to reveal answer</div>
+                </div>
+
+                <!-- Back Side (Definition) -->
+                <div class="flashcard-face flashcard-back">
+                    <div class="card-type">Definition</div>
+                    <div class="card-content">
+                        <p>{{ currentFlashcard.definition }}</p>
+                    </div>
+                    <div class="card-hint">How did you do?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="study-controls">
+            <div class="navigation-controls">
+                <button class="btn btn-secondary" (click)="previousCard()" [disabled]="isFirstCard()">
+                    ← Previous
+                </button>
+
+                <button class="btn btn-outline" (click)="flipCard()">
+                    {{ isFlipped ? '🔄 Show Term' : '🔄 Show Definition' }}
+                </button>
+
+                <button class="btn btn-secondary" (click)="nextCard()" [disabled]="isLastCard()">
+                    Next →
+                </button>
+            </div>
+
+            <!-- Answer Feedback (only shown when flipped) -->
+            <div class="answer-controls" *ngIf="isFlipped">
+                <p class="feedback-prompt">Did you get it right?</p>
+                <div class="feedback-buttons">
+                    <button class="btn btn-success" (click)="markCorrect()">
+                        ✓ Got it right (C)
+                    </button>
+                    <button class="btn btn-danger" (click)="markIncorrect()">
+                        ✗ Got it wrong (X)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Progress Dots -->
+        <div class="card-progress" *ngIf="flashcards.length <= 20">
+            <div class="progress-dots">
+                <button *ngFor="let card of flashcards; let i = index" class="progress-dot"
+                    [class.active]="i === currentIndex" [class.completed]="i < currentIndex" (click)="goToCard(i)"
+                    [title]="'Card ' + (i + 1) + ': ' + card.term">
+                </button>
+            </div>
+        </div>
+
+        <!-- Session Complete -->
+        <div *ngIf="isLastCard() && isFlipped && cardsStudied === flashcards.length" class="session-complete">
+            <div class="complete-card">
+                <div class="complete-icon">🎉</div>
+                <h2>Session Complete!</h2>
+                <p>Great job! You've studied all {{ flashcards.length }} cards.</p>
+
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <span class="final-stat-number">{{ correctAnswers }}</span>
+                        <span class="final-stat-label">Correct Answers</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-stat-number">{{ getAccuracy() }}%</span>
+                        <span class="final-stat-label">Accuracy</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="final-stat-number">{{ getSessionDuration() }}m</span>
+                        <span class="final-stat-label">Study Time</span>
+                    </div>
+                </div>
+
+                <div class="complete-actions">
+                    <button class="btn btn-primary" (click)="restartSession()">
+                        Study Again
+                    </button>
+                    <button class="btn btn-secondary" (click)="endSession()">
+                        Back to Flashcards
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

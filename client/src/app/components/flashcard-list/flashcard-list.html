@@ -1,0 +1,187 @@
+<div class="flashcard-list-container" (keydown)="onKeyDown($event)">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading flashcards...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="showForm" class="form-container">
+    <app-flashcard-form [editingFlashcard]="editingFlashcard" (submitted)="onFormSubmitted()"
+      (cancelled)="onFormCancelled()">
+    </app-flashcard-form>
+  </div>
+
+  <!-- Flashcards Display -->
+  <div class="flashcards-container" *ngIf="!loading">
+    <!-- Study Mode Button -->
+    <div *ngIf="flashcards.length > 0" class="study-mode-banner">
+      <div class="study-banner-content">
+        <div class="study-banner-info">
+          <h3>🎯 Ready to Study?</h3>
+          <p>Practice all {{ flashcards.length }} flashcard{{ flashcards.length !== 1 ? 's' : '' }} in study mode</p>
+        </div>
+        <button class="btn btn-primary btn-study" routerLink="/study">
+          Start Study Session
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="flashcards.length === 0" class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No flashcards yet</h3>
+      <p>Create your first flashcard to get started!</p>
+      <button class="btn btn-primary" (click)="toggleForm()">
+        Create Flashcard
+      </button>
+    </div>
+
+    <!-- No results message -->
+    <div *ngIf="flashcards.length > 0 && filteredFlashcards.length === 0" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No matching flashcards</h3>
+      <p>Try adjusting your search or filters.</p>
+      <button class="btn btn-secondary" (click)="onSearch('')">
+        Clear Search
+      </button>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="filteredFlashcards.length > 0 && viewMode === 'grid'" class="flashcards-grid">
+      <div *ngFor="let flashcard of getPaginatedFlashcards(); trackBy: trackByFlashcardId" class="flashcard-item"
+        [routerLink]="['/flashcards', flashcard.id]" (mouseenter)="showPreview(flashcard, $event)"
+        (mouseleave)="hidePreview()">
+
+        <div class="flashcard-content">
+          <div class="flashcard-term">
+            <h3>{{ flashcard.term }}</h3>
+          </div>
+
+          <div class="flashcard-definition">
+            <p>{{ flashcard.definition }}</p>
+          </div>
+
+          <div class="flashcard-meta">
+            <small class="created-date">
+              Created: {{ flashcard.createdAt | date:'short' }}
+            </small>
+            <small class="updated-date" *ngIf="flashcard.updatedAt !== flashcard.createdAt">
+              Updated: {{ flashcard.updatedAt | date:'short' }}
+            </small>
+          </div>
+        </div>
+
+        <div class="flashcard-actions" (click)="$event.stopPropagation()">
+          <button class="btn btn-sm btn-outline" (click)="editFlashcard(flashcard)" title="Edit flashcard">
+            ✏️
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="deleteFlashcard(flashcard.id)" title="Delete flashcard">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact View -->
+    <div *ngIf="filteredFlashcards.length > 0 && viewMode === 'compact'" class="flashcards-compact">
+      <div class="compact-header">
+        <div class="compact-col-term">Term</div>
+        <div class="compact-col-definition">Definition</div>
+        <div class="compact-col-date">Created</div>
+        <div class="compact-col-actions">Actions</div>
+      </div>
+
+      <div *ngFor="let flashcard of getPaginatedFlashcards(); trackBy: trackByFlashcardId; let i = index"
+        class="compact-item" [class.even]="i % 2 === 0" [routerLink]="['/flashcards', flashcard.id]"
+        (mouseenter)="showPreview(flashcard, $event)" (mouseleave)="hidePreview()">
+
+        <div class="compact-col-term" [title]="flashcard.term">
+          <strong>{{ truncateText(flashcard.term, 30) }}</strong>
+        </div>
+
+        <div class="compact-col-definition" [title]="flashcard.definition">
+          {{ truncateText(flashcard.definition, 60) }}
+        </div>
+
+        <div class="compact-col-date">
+          <small>{{ flashcard.createdAt | date:'MMM d, y' }}</small>
+        </div>
+
+        <div class="compact-col-actions" (click)="$event.stopPropagation()">
+          <button class="btn btn-xs btn-outline" (click)="editFlashcard(flashcard)" title="Edit flashcard">
+            ✏️
+          </button>
+          <button class="btn btn-xs btn-danger" (click)="deleteFlashcard(flashcard.id)" title="Delete flashcard">
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="filteredFlashcards.length > itemsPerPage">
+      <div class="pagination-info">
+        Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} -
+        {{ Math.min(currentPage * itemsPerPage, filteredFlashcards.length) }}
+        of {{ filteredFlashcards.length }} flashcards
+      </div>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-secondary" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          « Previous
+        </button>
+
+        <div class="page-numbers">
+          <button *ngFor="let page of [].constructor(getTotalPages()); let i = index" class="page-btn"
+            [class.active]="currentPage === i + 1" (click)="goToPage(i + 1)">
+            {{ i + 1 }}
+          </button>
+        </div>
+
+        <button class="btn btn-sm btn-secondary" (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === getTotalPages()">
+          Next »
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-container" *ngIf="!loading && flashcards.length > 0">
+    <div class="stat-item">
+      <span class="stat-number">{{ filteredFlashcards.length }}</span>
+      <span class="stat-label">{{ filteredFlashcards.length === 1 ? 'Flashcard' : 'Flashcards' }}</span>
+    </div>
+    <div class="stat-item" *ngIf="searchTerm">
+      <span class="stat-number">{{ flashcards.length }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+  </div>
+
+  <!-- Quick Preview Modal -->
+  <div class="preview-modal" *ngIf="previewFlashcard" (click)="hidePreview()">
+    <div class="preview-content" (click)="$event.stopPropagation()">
+      <div class="preview-header">
+        <h3>Quick Preview</h3>
+        <button class="preview-close" (click)="hidePreview()">×</button>
+      </div>
+      <div class="preview-body">
+        <div class="preview-term">
+          <strong>Term:</strong>
+          <p>{{ previewFlashcard.term }}</p>
+        </div>
+        <div class="preview-definition">
+          <strong>Definition:</strong>
+          <p>{{ previewFlashcard.definition }}</p>
+        </div>
+      </div>
+      <div class="preview-footer">
+        <button class="btn btn-primary" [routerLink]="['/flashcards', previewFlashcard.id]">
+          View Full Card
+        </button>
+        <button class="btn btn-secondary" (click)="hidePreview()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

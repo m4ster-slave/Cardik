@@ -1,0 +1,91 @@
+<!-- Main application template -->
+<div class="app-container">
+    <header class="app-header">
+        <div class="navbar">
+            <div class="navbar-brand">
+                <div class="brand-icon">
+                    <span class="icon">🧠</span>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-title">{{ title }}</h1>
+                    <span class="brand-subtitle">Master your knowledge</span>
+                </div>
+            </div>
+
+            <div class="navbar-center" *ngIf="isFlashcardsRoute">
+                <div class="nav-search">
+                    <input type="text" class="search-input" placeholder="🔍 Search flashcards..." [value]="searchTerm"
+                        (input)="onSearch($any($event.target).value)" title="Search in terms and definitions">
+
+                    <select class="sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)"
+                        title="Sort flashcards">
+                        <option value="created">By Created</option>
+                        <option value="term">By Term</option>
+                        <option value="definition">By Definition</option>
+                        <option value="updated">By Updated</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="navbar-actions">
+                <a routerLink="/flashcards" routerLinkActive="active" class="nav-link">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">All Flashcards</span>
+                </a>
+
+                <a routerLink="/study" routerLinkActive="active" class="nav-link">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Study Mode</span>
+                </a>
+
+                <ng-container *ngIf="isFlashcardsRoute">
+                    <button class="btn-nav btn-outline" (click)="toggleViewMode()" title="Toggle view mode">
+                        <span class="btn-icon">{{ viewMode === 'grid' ? '📋' : '🔲' }}</span>
+                        <span class="btn-text">{{ viewMode === 'grid' ? 'Compact' : 'Grid' }}</span>
+                    </button>
+
+                    <button class="btn-nav btn-secondary" (click)="refresh()" title="Refresh flashcards">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">Refresh</span>
+                    </button>
+
+                    <button class="btn-nav btn-primary" (click)="toggleForm()"
+                        title="{{ showForm ? 'Cancel' : 'Add new flashcard' }}">
+                        <span class="btn-icon">{{ showForm ? '❌' : '➕' }}</span>
+                        <span class="btn-text">{{ showForm ? 'Cancel' : 'Add' }}</span>
+                    </button>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Mobile Search Bar -->
+        <div class="mobile-search" *ngIf="isFlashcardsRoute">
+            <div class="mobile-search-container">
+                <input type="text" class="mobile-search-input" placeholder="🔍 Search flashcards..."
+                    [value]="searchTerm" (input)="onSearch($any($event.target).value)"
+                    title="Search in terms and definitions">
+
+                <select class="mobile-sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)"
+                    title="Sort flashcards">
+                    <option value="created">By Created</option>
+                    <option value="term">By Term</option>
+                    <option value="definition">By Definition</option>
+                    <option value="updated">By Updated</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-content">
+        <router-outlet #outlet="outlet"></router-outlet>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <p class="footer-text">&copy; 2025 Flashcard App</p>
+                <p class="footer-subtitle">Built with Angular & Node.js</p>
+            </div>
+        </div>
+    </footer>
+</div>
