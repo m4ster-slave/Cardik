@@ -6,11 +6,23 @@
     </button>
 
     <div class="header-actions" *ngIf="flashcard && !loading">
-      <button class="btn btn-outline" (click)="editFlashcard()" title="Edit flashcard">
+      <button class="btn btn-outline" (click)="editFlashcard()" title="Edit flashcard" *ngIf="!isEditing">
         ✏️ Edit
       </button>
-      <button class="btn btn-danger" (click)="deleteFlashcard()" title="Delete flashcard">
+      <button class="btn btn-danger" (click)="deleteFlashcard()" title="Delete flashcard" *ngIf="!isEditing">
         🗑️ Delete
+      </button>
+
+      <!-- Edit Mode Actions -->
+      <button class="btn btn-secondary" (click)="cancelEdit()" title="Cancel editing" *ngIf="isEditing">
+        ❌ Cancel
+      </button>
+      <button class="btn btn-primary" (click)="saveEdit()"
+              title="Save changes"
+              *ngIf="isEditing"
+              [disabled]="editForm.invalid || isSubmitting">
+        <span *ngIf="isSubmitting">💾 Saving...</span>
+        <span *ngIf="!isSubmitting">💾 Save</span>
       </button>
     </div>
   </header>
@@ -33,42 +45,97 @@
 
   <!-- Flashcard Display -->
   <div *ngIf="flashcard && !loading && !error" class="flashcard-display">
-    <!-- Instructions -->
-    <div class="instructions">
-      <p>Click the card or press <kbd>Space</kbd> to flip it!</p>
-    </div>
 
-    <!-- Flashcard -->
-    <div class="flashcard-3d" [class.flipped]="isFlipped" (click)="flipCard()" (keydown)="onKeydown($event)"
-      tabindex="0" role="button" [attr.aria-label]="isFlipped ? 'Show term' : 'Show definition'">
-
-      <!-- Front Side (Term) -->
-      <div class="flashcard-face flashcard-front">
-        <div class="card-type">Term</div>
-        <div class="card-content">
-          <h2>{{ flashcard.term }}</h2>
-        </div>
-        <div class="card-hint">Click to reveal answer</div>
+    <!-- Edit Form -->
+    <div *ngIf="isEditing" class="edit-form-container">
+      <div class="form-header">
+        <h2>Edit Flashcard</h2>
+        <p class="form-description">Update the flashcard information below.</p>
       </div>
 
-      <!-- Back Side (Definition) -->
-      <div class="flashcard-face flashcard-back">
-        <div class="card-type">Definition</div>
-        <div class="card-content">
-          <p>{{ flashcard.definition }}</p>
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="flashcard-edit-form">
+        <!-- Term Field -->
+        <div class="form-group">
+          <label for="edit-term" class="form-label">
+            Term / Question <span class="required">*</span>
+          </label>
+          <input type="text" id="edit-term" formControlName="term"
+                 class="form-control" [class.error]="hasError('term')"
+                 placeholder="Enter the term or question..." maxlength="200">
+
+          <div class="form-feedback">
+            <div class="error-message" *ngIf="hasError('term')">
+              {{ getErrorMessage('term') }}
+            </div>
+            <div class="char-count">
+              {{ editForm.get('term')?.value?.length || 0 }}/200
+            </div>
+          </div>
         </div>
-        <div class="card-hint">Click to show term</div>
-      </div>
+
+        <!-- Definition Field -->
+        <div class="form-group">
+          <label for="edit-definition" class="form-label">
+            Definition / Answer <span class="required">*</span>
+          </label>
+          <textarea id="edit-definition" formControlName="definition"
+                    class="form-control textarea" [class.error]="hasError('definition')"
+                    placeholder="Enter the definition or answer..." rows="4" maxlength="1000">
+          </textarea>
+
+          <div class="form-feedback">
+            <div class="error-message" *ngIf="hasError('definition')">
+              {{ getErrorMessage('definition') }}
+            </div>
+            <div class="char-count">
+              {{ editForm.get('definition')?.value?.length || 0 }}/1000
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <!-- Controls -->
-    <div class="flashcard-controls">
-      <button class="btn btn-primary" (click)="flipCard()">
-        {{ isFlipped ? '🔄 Show Term' : '🔄 Show Definition' }}
-      </button>
-      <button class="btn btn-secondary" (click)="resetCard()" [disabled]="!isFlipped">
-        ↺ Reset
-      </button>
+    <!-- Normal Display -->
+    <div *ngIf="!isEditing">
+      <!-- Instructions -->
+      <div class="instructions">
+        <p>Click the card or press <kbd>Space</kbd> to flip it!</p>
+      </div>
+
+      <!-- 3D Flashcard Display -->
+      <div class="flashcard-container">
+        <div class="flashcard-3d" [class.flipped]="isFlipped" (click)="flipCard()" tabindex="0" role="button"
+             [attr.aria-label]="isFlipped ? 'Show term' : 'Show definition'">
+
+          <!-- Front Side (Term) -->
+          <div class="flashcard-face flashcard-front">
+            <div class="card-type">Term</div>
+            <div class="card-content">
+              <h2>{{ flashcard.term }}</h2>
+            </div>
+            <div class="card-hint">Press Space or click to reveal answer</div>
+          </div>
+
+          <!-- Back Side (Definition) -->
+          <div class="flashcard-face flashcard-back">
+            <div class="card-type">Definition</div>
+            <div class="card-content">
+              <p>{{ flashcard.definition }}</p>
+            </div>
+            <div class="card-hint">How did you do?</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flashcard-controls">
+        <button class="btn btn-primary" (click)="flipCard()">
+          {{ isFlipped ? '🔄 Show Term' : '🔄 Show Definition' }}
+        </button>
+        <button class="btn btn-secondary" (click)="resetCard()" [disabled]="!isFlipped">
+          ↺ Reset
+        </button>
+      </div>
     </div>
 
     <!-- Metadata -->

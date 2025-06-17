@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { FlashcardService } from '../../services/flashcard';
-import { Flashcard } from '../../models/flashcard.model';
+import { Flashcard, UpdateFlashcardRequest } from '../../models/flashcard.model';
 
 @Component({
   selector: 'app-flashcard-detail',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './flashcard-detail.html',
   styleUrl: './flashcard-detail.scss'
 })
@@ -16,14 +17,21 @@ export class FlashcardDetail implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
   isFlipped = false;
+  isEditing = false;
+  isSubmitting = false;
+  
+  editForm: FormGroup;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private flashcardService: FlashcardService
-  ) { }
+    private flashcardService: FlashcardService,
+    private fb: FormBuilder
+  ) {
+    this.editForm = this.createEditForm();
+  }
 
   ngOnInit(): void {
     this.route.params
@@ -89,11 +97,7 @@ export class FlashcardDetail implements OnInit, OnDestroy {
    * Edit the current flashcard
    */
   editFlashcard(): void {
-    if (this.flashcard) {
-      this.router.navigate(['/flashcards'], {
-        queryParams: { edit: this.flashcard.id }
-      });
-    }
+    this.enterEditMode();
   }
 
   /**
@@ -118,10 +122,121 @@ export class FlashcardDetail implements OnInit, OnDestroy {
   /**
    * Handle keyboard events for accessibility
    */
+  @HostListener('window:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (event.code === 'Space' || event.code === 'Enter') {
+    if (!this.isEditing && this.flashcard && (event.code === 'Space' || event.code === 'Enter')) {
       event.preventDefault();
       this.flipCard();
     }
+  }
+
+  /**
+   * Create the edit form
+   */
+  private createEditForm(): FormGroup {
+    return this.fb.group({
+      term: ['', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(200)
+      ]],
+      definition: ['', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(1000)
+      ]]
+    });
+  }
+
+  /**
+   * Enter edit mode
+   */
+  enterEditMode(): void {
+    if (this.flashcard) {
+      this.isEditing = true;
+      this.editForm.patchValue({
+        term: this.flashcard.term,
+        definition: this.flashcard.definition
+      });
+    }
+  }
+
+  /**
+   * Cancel edit mode
+   */
+  cancelEdit(): void {
+    this.isEditing = false;
+    this.editForm.reset();
+    this.isFlipped = false;
+  }
+
+  /**
+   * Save the edited flashcard
+   */
+  saveEdit(): void {
+    if (this.editForm.valid && this.flashcard && !this.isSubmitting) {
+      this.isSubmitting = true;
+      
+      const formValue = this.editForm.value;
+      const request: UpdateFlashcardRequest = {
+        term: formValue.term.trim(),
+        definition: formValue.definition.trim()
+      };
+
+      this.flashcardService.updateFlashcard(this.flashcard.id, request).subscribe({
+        next: (updatedFlashcard) => {
+          this.flashcard = updatedFlashcard;
+          this.isEditing = false;
+          this.isSubmitting = false;
+          this.editForm.reset();
+        },
+        error: (error) => {
+          this.isSubmitting = false;
+          console.error('Error updating flashcard:', error);
+          alert('Error updating flashcard: ' + error.message);
+        }
+      });
+    }
+  }
+
+  /**
+   * Get form control error message
+   */
+  getErrorMessage(controlName: string): string {
+    const control = this.editForm.get(controlName);
+
+    if (control?.errors && control.touched) {
+      if (control.errors['required']) {
+        return `${this.getFieldName(controlName)} is required`;
+      }
+      if (control.errors['minlength']) {
+        return `${this.getFieldName(controlName)} is too short`;
+      }
+      if (control.errors['maxlength']) {
+        const maxLength = control.errors['maxlength'].requiredLength;
+        return `${this.getFieldName(controlName)} must be less than ${maxLength} characters`;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * Get field display name
+   */
+  private getFieldName(controlName: string): string {
+    switch (controlName) {
+      case 'term': return 'Term';
+      case 'definition': return 'Definition';
+      default: return controlName;
+    }
+  }
+
+  /**
+   * Check if form control has error and is touched
+   */
+  hasError(controlName: string): boolean {
+    const control = this.editForm.get(controlName);
+    return !!(control?.errors && control.touched);
   }
 }

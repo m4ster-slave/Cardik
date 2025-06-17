@@ -398,36 +398,12 @@
   }
 }
 
-// Sortable header styles
-.sortable-header {
-  cursor: pointer !important;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.2s ease;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  
-  &:hover {
-    background-color: rgba(102, 126, 234, 0.1);
-    color: #667eea;
-  }
-  
-  &.active {
-    background-color: rgba(102, 126, 234, 0.15);
-    color: #667eea;
-    font-weight: 700;
-  }
-}
 
-.sort-indicator {
-  font-size: 0.8rem;
-  font-weight: bold;
-  margin-left: 0.5rem;
-  opacity: 0.8;
-  transition: transform 0.2s ease;
-}
+
+
+
+
+
 
 // Responsive adjustments
 @media (max-width: 480px) {

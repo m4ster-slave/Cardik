@@ -7,8 +7,7 @@
 
   <!-- Form -->
   <div *ngIf="showForm" class="form-container">
-    <app-flashcard-form [editingFlashcard]="editingFlashcard" (submitted)="onFormSubmitted()"
-      (cancelled)="onFormCancelled()">
+    <app-flashcard-form (submitted)="onFormSubmitted()" (cancelled)="onFormCancelled()">
     </app-flashcard-form>
   </div>
 
@@ -74,9 +73,6 @@
         </div>
 
         <div class="compact-col-actions" (click)="$event.stopPropagation()">
-          <button class="btn btn-xs btn-outline" (click)="editFlashcard(flashcard)" title="Edit flashcard">
-            ✏️
-          </button>
           <button class="btn btn-xs btn-danger" (click)="deleteFlashcard(flashcard.id)" title="Delete flashcard">
             🗑️
           </button>
@@ -129,10 +125,6 @@
     <div class="stat-item">
       <span class="stat-number">{{ filteredFlashcards.length }}</span>
       <span class="stat-label">{{ filteredFlashcards.length === 1 ? 'Flashcard' : 'Flashcards' }}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-number">{{ flashcards.length }}</span>
-      <span class="stat-label">Total</span>
     </div>
   </div>
 

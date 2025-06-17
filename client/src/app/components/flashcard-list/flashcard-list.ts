@@ -17,7 +17,6 @@ export class FlashcardList implements OnInit, OnDestroy {
     filteredFlashcards: Flashcard[] = [];
     loading = false;
     showForm = false;
-    editingFlashcard: Flashcard | null = null;
 
     // Search and filtering
     sortBy: 'term' | 'definition' | 'created' | 'updated' = 'created';
@@ -92,17 +91,6 @@ export class FlashcardList implements OnInit, OnDestroy {
      */
     toggleForm(): void {
         this.flashcardService.toggleForm();
-        if (!this.showForm) {
-            this.editingFlashcard = null;
-        }
-    }
-
-    /**
-     * Edit a flashcard
-     */
-    editFlashcard(flashcard: Flashcard): void {
-        this.editingFlashcard = flashcard;
-        this.flashcardService.setFormVisibility(true);
     }
 
     /**
@@ -127,7 +115,6 @@ export class FlashcardList implements OnInit, OnDestroy {
      */
     onFormSubmitted(): void {
         this.flashcardService.setFormVisibility(false);
-        this.editingFlashcard = null;
     }
 
     /**
@@ -135,7 +122,6 @@ export class FlashcardList implements OnInit, OnDestroy {
      */
     onFormCancelled(): void {
         this.flashcardService.setFormVisibility(false);
-        this.editingFlashcard = null;
     }
 
     /**

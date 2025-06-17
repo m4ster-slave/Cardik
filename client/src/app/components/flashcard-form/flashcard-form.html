@@ -58,19 +58,4 @@
       </button>
     </div>
   </form>
-
-  <!-- Preview Card -->
-  <div class="preview-section" *ngIf="flashcardForm.get('term')?.value || flashcardForm.get('definition')?.value">
-    <h3>Preview</h3>
-    <div class="preview-card">
-      <div class="preview-term">
-        <strong>Term:</strong>
-        <span>{{ flashcardForm.get('term')?.value || 'Enter a term...' }}</span>
-      </div>
-      <div class="preview-definition">
-        <strong>Definition:</strong>
-        <span>{{ flashcardForm.get('definition')?.value || 'Enter a definition...' }}</span>
-      </div>
-    </div>
-  </div>
 </div>
