@@ -11,65 +11,41 @@
                 </div>
             </div>
 
-            <div class="navbar-center" *ngIf="isFlashcardsRoute">
-                <div class="nav-search">
-                    <input type="text" class="search-input" placeholder="🔍 Search flashcards..." [value]="searchTerm"
-                        (input)="onSearch($any($event.target).value)" title="Search in terms and definitions">
 
-                    <select class="sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)"
-                        title="Sort flashcards">
-                        <option value="created">By Created</option>
-                        <option value="term">By Term</option>
-                        <option value="definition">By Definition</option>
-                        <option value="updated">By Updated</option>
-                    </select>
-                </div>
-            </div>
 
             <div class="navbar-actions">
+                <!-- Action Buttons (conditional) -->
+                <div class="action-buttons">
+                    <ng-container *ngIf="isFlashcardsRoute">
+                        <button class="btn-nav btn-secondary" (click)="refresh()" title="Refresh flashcards">
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">Refresh</span>
+                        </button>
 
+                        <button class="btn-nav btn-primary" (click)="toggleForm()"
+                            title="{{ showForm ? 'Cancel' : 'Add new flashcard' }}">
+                            <span class="btn-icon">{{ showForm ? '❌' : '➕' }}</span>
+                            <span class="btn-text">{{ showForm ? 'Cancel' : 'Add' }}</span>
+                        </button>
+                    </ng-container>
+                </div>
 
-                <ng-container *ngIf="isFlashcardsRoute">
-                    <button class="btn-nav btn-secondary" (click)="refresh()" title="Refresh flashcards">
-                        <span class="btn-icon">🔄</span>
-                        <span class="btn-text">Refresh</span>
-                    </button>
+                <!-- Navigation Links (always visible) -->
+                <div class="nav-links">
+                    <a routerLink="/flashcards" routerLinkActive="active" class="nav-link">
+                        <span class="nav-icon">📚</span>
+                        <span class="nav-text">All Flashcards</span>
+                    </a>
 
-                    <button class="btn-nav btn-primary" (click)="toggleForm()"
-                        title="{{ showForm ? 'Cancel' : 'Add new flashcard' }}">
-                        <span class="btn-icon">{{ showForm ? '❌' : '➕' }}</span>
-                        <span class="btn-text">{{ showForm ? 'Cancel' : 'Add' }}</span>
-                    </button>
-                </ng-container>
-
-                <a routerLink="/flashcards" routerLinkActive="active" class="nav-link">
-                    <span class="nav-icon">📚</span>
-                    <span class="nav-text">All Flashcards</span>
-                </a>
-
-                <a routerLink="/study" routerLinkActive="active" class="nav-link">
-                    <span class="nav-icon">🎯</span>
-                    <span class="nav-text">Study Mode</span>
-                </a>
+                    <a routerLink="/study" routerLinkActive="active" class="nav-link">
+                        <span class="nav-icon">🎯</span>
+                        <span class="nav-text">Study Mode</span>
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Mobile Search Bar -->
-        <div class="mobile-search" *ngIf="isFlashcardsRoute">
-            <div class="mobile-search-container">
-                <input type="text" class="mobile-search-input" placeholder="🔍 Search flashcards..."
-                    [value]="searchTerm" (input)="onSearch($any($event.target).value)"
-                    title="Search in terms and definitions">
 
-                <select class="mobile-sort-select" [value]="sortBy" (change)="onSortChange($any($event.target).value)"
-                    title="Sort flashcards">
-                    <option value="created">By Created</option>
-                    <option value="term">By Term</option>
-                    <option value="definition">By Definition</option>
-                    <option value="updated">By Updated</option>
-                </select>
-            </div>
-        </div>
     </header>
 
     <main class="app-content">

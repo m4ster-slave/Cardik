@@ -1,5 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import {
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+  Router,
+} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { FlashcardService } from './services/flashcard';
@@ -8,27 +13,25 @@ import { FlashcardService } from './services/flashcard';
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  protected title = 'Flashcard App';
+  protected title = 'Flashcards';
 
-  searchTerm = '';
   showForm = false;
-  sortBy: 'term' | 'definition' | 'created' | 'updated' = 'created';
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private flashcardService: FlashcardService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     // Subscribe to form visibility changes from the service
     this.flashcardService.showForm$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(show => {
+      .subscribe((show) => {
         this.showForm = show;
       });
   }
@@ -36,16 +39,6 @@ export class App implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  onSearch(term: string): void {
-    this.searchTerm = term;
-    this.flashcardService.setSearchTerm(term);
-  }
-
-  onSortChange(sortBy: 'term' | 'definition' | 'created' | 'updated'): void {
-    this.sortBy = sortBy;
-    this.flashcardService.setSortBy(sortBy);
   }
 
   toggleForm(): void {

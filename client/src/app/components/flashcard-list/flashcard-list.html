@@ -23,22 +23,38 @@
       </button>
     </div>
 
-    <!-- No results message -->
-    <div *ngIf="flashcards.length > 0 && filteredFlashcards.length === 0" class="empty-state">
-      <div class="empty-icon">🔍</div>
-      <h3>No matching flashcards</h3>
-      <p>Try adjusting your search or filters.</p>
-      <button class="btn btn-secondary" (click)="onSearch('')">
-        Clear Search
-      </button>
-    </div>
+
 
     <!-- Compact View -->
     <div *ngIf="filteredFlashcards.length > 0" class="flashcards-compact">
       <div class="compact-header">
-        <div class="compact-col-term">Term</div>
-        <div class="compact-col-definition">Definition</div>
-        <div class="compact-col-date">Created</div>
+        <div class="compact-col-term sortable-header"
+             (click)="onColumnSort('term')"
+             [class.active]="sortBy === 'term'"
+             title="Click to sort by term">
+          Term
+          <span class="sort-indicator" *ngIf="sortBy === 'term'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
+        <div class="compact-col-definition sortable-header"
+             (click)="onColumnSort('definition')"
+             [class.active]="sortBy === 'definition'"
+             title="Click to sort by definition">
+          Definition
+          <span class="sort-indicator" *ngIf="sortBy === 'definition'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
+        <div class="compact-col-date sortable-header"
+             (click)="onColumnSort('created')"
+             [class.active]="sortBy === 'created'"
+             title="Click to sort by created date">
+          Created
+          <span class="sort-indicator" *ngIf="sortBy === 'created'">
+            {{ sortOrder === 'asc' ? '↑' : '↓' }}
+          </span>
+        </div>
         <div class="compact-col-actions">Actions</div>
       </div>
 
@@ -76,11 +92,11 @@
         of {{ filteredFlashcards.length }} flashcards
       </div>
       <div class="pagination-controls">
-        <button class="btn btn-sm btn-secondary" (click)="goToFirstPage()" 
+        <button class="btn btn-sm btn-secondary" (click)="goToFirstPage()"
                 [disabled]="currentPage === 1" *ngIf="getTotalPages() > 5">
           ‹‹ First
         </button>
-        
+
         <button class="btn btn-sm btn-secondary" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
           ‹ Previous
         </button>
@@ -99,8 +115,8 @@
           [disabled]="currentPage === getTotalPages()">
           Next ›
         </button>
-        
-        <button class="btn btn-sm btn-secondary" (click)="goToLastPage()" 
+
+        <button class="btn btn-sm btn-secondary" (click)="goToLastPage()"
                 [disabled]="currentPage === getTotalPages()" *ngIf="getTotalPages() > 5">
           Last ››
         </button>
@@ -114,7 +130,7 @@
       <span class="stat-number">{{ filteredFlashcards.length }}</span>
       <span class="stat-label">{{ filteredFlashcards.length === 1 ? 'Flashcard' : 'Flashcards' }}</span>
     </div>
-    <div class="stat-item" *ngIf="searchTerm">
+    <div class="stat-item">
       <span class="stat-number">{{ flashcards.length }}</span>
       <span class="stat-label">Total</span>
     </div>

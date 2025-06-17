@@ -6,14 +6,14 @@ import {
   Flashcard,
   CreateFlashcardRequest,
   UpdateFlashcardRequest,
-  FlashcardApiResponse
+  FlashcardApiResponse,
 } from '../models/flashcard.model';
 
 /**
  * Service for managing flashcard operations with the backend API
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FlashcardService {
   private readonly apiUrl = 'http://localhost:3000/api/flashcards';
@@ -32,10 +32,11 @@ export class FlashcardService {
 
   // Search term state management
   private searchTermSubject = new BehaviorSubject<string>('');
-  public searchTerm$ = this.searchTermSubject.asObservable();
 
   // Sort state management
-  private sortBySubject = new BehaviorSubject<'term' | 'definition' | 'created' | 'updated'>('created');
+  private sortBySubject = new BehaviorSubject<
+    'term' | 'definition' | 'created' | 'updated'
+  >('created');
   public sortBy$ = this.sortBySubject.asObservable();
 
   private sortOrderSubject = new BehaviorSubject<'asc' | 'desc'>('desc');
@@ -58,7 +59,7 @@ export class FlashcardService {
       error: (error) => {
         console.error('Error loading flashcards:', error);
         this.loadingSubject.next(false);
-      }
+      },
     });
   }
 
@@ -66,21 +67,27 @@ export class FlashcardService {
    * Get all flashcards
    */
   getAllFlashcards(): Observable<Flashcard[]> {
-    return this.http.get<FlashcardApiResponse<Flashcard[]>>(this.apiUrl)
-      .pipe(
-        map(response => response.data ? response.data.map(this.parseFlashcardDates) : []),
-        catchError(this.handleError)
-      );
+    return this.http.get<FlashcardApiResponse<Flashcard[]>>(this.apiUrl).pipe(
+      map((response) =>
+        response.data ? response.data.map(this.parseFlashcardDates) : [],
+      ),
+      catchError(this.handleError),
+    );
   }
 
   /**
    * Get a single flashcard by ID
    */
   getFlashcardById(id: number): Observable<Flashcard> {
-    return this.http.get<FlashcardApiResponse<Flashcard>>(`${this.apiUrl}/${id}`)
+    return this.http
+      .get<FlashcardApiResponse<Flashcard>>(`${this.apiUrl}/${id}`)
       .pipe(
-        map(response => response.data ? this.parseFlashcardDates(response.data) : {} as Flashcard),
-        catchError(this.handleError)
+        map((response) =>
+          response.data
+            ? this.parseFlashcardDates(response.data)
+            : ({} as Flashcard),
+        ),
+        catchError(this.handleError),
       );
   }
 
@@ -89,28 +96,41 @@ export class FlashcardService {
    */
   createFlashcard(flashcard: CreateFlashcardRequest): Observable<Flashcard> {
     this.loadingSubject.next(true);
-    return this.http.post<FlashcardApiResponse<Flashcard>>(this.apiUrl, flashcard)
+    return this.http
+      .post<FlashcardApiResponse<Flashcard>>(this.apiUrl, flashcard)
       .pipe(
-        map(response => response.data ? this.parseFlashcardDates(response.data) : {} as Flashcard),
+        map((response) =>
+          response.data
+            ? this.parseFlashcardDates(response.data)
+            : ({} as Flashcard),
+        ),
         tap(() => {
           this.loadFlashcards(); // Refresh the list
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
   /**
    * Update an existing flashcard
    */
-  updateFlashcard(id: number, flashcard: UpdateFlashcardRequest): Observable<Flashcard> {
+  updateFlashcard(
+    id: number,
+    flashcard: UpdateFlashcardRequest,
+  ): Observable<Flashcard> {
     this.loadingSubject.next(true);
-    return this.http.put<FlashcardApiResponse<Flashcard>>(`${this.apiUrl}/${id}`, flashcard)
+    return this.http
+      .put<FlashcardApiResponse<Flashcard>>(`${this.apiUrl}/${id}`, flashcard)
       .pipe(
-        map(response => response.data ? this.parseFlashcardDates(response.data) : {} as Flashcard),
+        map((response) =>
+          response.data
+            ? this.parseFlashcardDates(response.data)
+            : ({} as Flashcard),
+        ),
         tap(() => {
           this.loadFlashcards(); // Refresh the list
         }),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
@@ -119,14 +139,13 @@ export class FlashcardService {
    */
   deleteFlashcard(id: number): Observable<void> {
     this.loadingSubject.next(true);
-    return this.http.delete<FlashcardApiResponse>(`${this.apiUrl}/${id}`)
-      .pipe(
-        map(() => void 0),
-        tap(() => {
-          this.loadFlashcards(); // Refresh the list
-        }),
-        catchError(this.handleError)
-      );
+    return this.http.delete<FlashcardApiResponse>(`${this.apiUrl}/${id}`).pipe(
+      map(() => void 0),
+      tap(() => {
+        this.loadFlashcards(); // Refresh the list
+      }),
+      catchError(this.handleError),
+    );
   }
 
   /**
@@ -151,13 +170,6 @@ export class FlashcardService {
   }
 
   /**
-   * Set search term
-   */
-  setSearchTerm(term: string): void {
-    this.searchTermSubject.next(term);
-  }
-
-  /**
    * Set sort by field
    */
   setSortBy(sortBy: 'term' | 'definition' | 'created' | 'updated'): void {
@@ -169,13 +181,6 @@ export class FlashcardService {
       this.sortBySubject.next(sortBy);
       this.sortOrderSubject.next('asc');
     }
-  }
-
-  /**
-   * Get current search term
-   */
-  getCurrentSearchTerm(): string {
-    return this.searchTermSubject.value;
   }
 
   /**
@@ -192,7 +197,7 @@ export class FlashcardService {
     return {
       ...flashcard,
       createdAt: new Date(flashcard.createdAt),
-      updatedAt: new Date(flashcard.updatedAt)
+      updatedAt: new Date(flashcard.updatedAt),
     };
   }
 
@@ -209,7 +214,10 @@ export class FlashcardService {
       errorMessage = `Client Error: ${error.error.message}`;
     } else {
       // Server-side error
-      errorMessage = error.error?.error || error.error?.message || `Server Error: ${error.status} ${error.statusText}`;
+      errorMessage =
+        error.error?.error ||
+        error.error?.message ||
+        `Server Error: ${error.status} ${error.statusText}`;
     }
 
     console.error('FlashcardService Error:', errorMessage);

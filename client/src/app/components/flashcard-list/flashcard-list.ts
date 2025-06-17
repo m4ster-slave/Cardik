@@ -20,7 +20,6 @@ export class FlashcardList implements OnInit, OnDestroy {
     editingFlashcard: Flashcard | null = null;
 
     // Search and filtering
-    searchTerm = '';
     sortBy: 'term' | 'definition' | 'created' | 'updated' = 'created';
     sortOrder: 'asc' | 'desc' = 'desc';
 
@@ -60,14 +59,6 @@ export class FlashcardList implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe(show => {
                 this.showForm = show;
-            });
-
-        // Subscribe to search term changes from service
-        this.flashcardService.searchTerm$
-            .pipe(takeUntil(this.destroy$))
-            .subscribe(term => {
-                this.searchTerm = term;
-                this.applyFiltersAndSorting();
             });
 
         // Subscribe to sort changes from service
@@ -170,21 +161,12 @@ export class FlashcardList implements OnInit, OnDestroy {
     }
 
     /**
-     * Apply search filters and sorting
+     * Apply sorting (search filtering removed)
      */
     applyFiltersAndSorting(): void {
         let filtered = [...this.flashcards];
 
-        // Apply search filter
-        if (this.searchTerm.trim()) {
-            const searchLower = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(flashcard =>
-                flashcard.term.toLowerCase().includes(searchLower) ||
-                flashcard.definition.toLowerCase().includes(searchLower)
-            );
-        }
-
-        // Apply sorting
+        // Apply sorting only (no search filtering)
         filtered.sort((a, b) => {
             let aValue: string | Date;
             let bValue: string | Date;
@@ -222,13 +204,7 @@ export class FlashcardList implements OnInit, OnDestroy {
         this.currentPage = 1; // Reset to first page when filters change
     }
 
-    /**
-     * Handle search input
-     */
-    onSearch(term: string): void {
-        this.searchTerm = term;
-        this.applyFiltersAndSorting();
-    }
+
 
     /**
      * Get paginated flashcards
@@ -379,5 +355,12 @@ export class FlashcardList implements OnInit, OnDestroy {
                 }
                 break;
         }
+    }
+
+    /**
+     * Handle column header sorting
+     */
+    onColumnSort(column: 'term' | 'definition' | 'created' | 'updated'): void {
+        this.flashcardService.setSortBy(column);
     }
 }
