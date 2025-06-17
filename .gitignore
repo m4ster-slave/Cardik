@@ -43,3 +43,4 @@ testem.log
 /out-tsc
 /bazel-out
 *.js.map
+/server/flashcards.db

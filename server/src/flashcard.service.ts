@@ -1,45 +1,84 @@
-import { Flashcard, CreateFlashcardDto, UpdateFlashcardDto } from './types';
+import { Flashcard, CreateFlashcardDto, UpdateFlashcardDto } from "./types";
+import sqlite3 from "sqlite3";
+import { open, Database } from "sqlite";
+
+const DB_FILE = "./flashcards.db";
 
 /**
- * Data service for managing flashcards in memory
+ * Data service for managing flashcards in an SQLite database
  */
 export class FlashcardService {
-  private flashcards: Flashcard[] = [];
-  private nextId = 1;
+  private db!: Database;
 
   constructor() {
-    // Initialize with some sample data
-    this.seedData();
+    this.initDatabase();
+  }
+
+  /**
+   * Initializes the SQLite database and creates the flashcards table if it doesn't exist.
+   */
+  private async initDatabase(): Promise<void> {
+    this.db = await open({
+      filename: DB_FILE,
+      driver: sqlite3.Database,
+    });
+
+    await this.db.exec(`
+      CREATE TABLE IF NOT EXISTS flashcards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        term TEXT NOT NULL,
+        definition TEXT NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    // Seed data if the table is empty
+    const count = await this.db.get<{ count: number }>(
+      "SELECT COUNT(*) as count FROM flashcards",
+    );
+    if (count && count.count === 0) {
+      await this.seedData();
+    }
   }
 
   /**
    * Seeds the service with initial flashcard data
    */
-  private seedData(): void {
+  private async seedData(): Promise<void> {
     const sampleCards: CreateFlashcardDto[] = [
       {
-        term: "TypeScript",
-        definition: "A strongly typed programming language that builds on JavaScript, giving you better tooling at any scale."
+        term: "Hello Flashcard 1",
+        definition: "World!",
       },
       {
-        term: "Angular",
-        definition: "A TypeScript-based open-source web application framework led by the Angular Team at Google."
+        term: "Hello Flashcard 2",
+        definition: "SQLite!",
       },
       {
-        term: "Express.js",
-        definition: "A minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications."
-      }
+        term: "Hello Flashcard 3",
+        definition: "Database!",
+      },
     ];
 
-    sampleCards.forEach(card => this.create(card));
+    for (const card of sampleCards) {
+      await this.create(card);
+    }
   }
 
   /**
    * Retrieves all flashcards
    * @returns Array of all flashcards
    */
-  getAll(): Flashcard[] {
-    return [...this.flashcards];
+  async getAll(): Promise<Flashcard[]> {
+    const rows = await this.db.all<Flashcard[]>( // Explicitly type `rows`
+      "SELECT id, term, definition, createdAt, updatedAt FROM flashcards",
+    );
+    return rows.map((row: any) => ({
+      // Add type for row
+      ...row,
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt),
+    }));
   }
 
   /**
@@ -47,8 +86,19 @@ export class FlashcardService {
    * @param id - The ID of the flashcard to retrieve
    * @returns The flashcard if found, null otherwise
    */
-  getById(id: number): Flashcard | null {
-    return this.flashcards.find(card => card.id === id) || null;
+  async getById(id: number): Promise<Flashcard | null> {
+    const row = await this.db.get<Flashcard>( // Explicitly type `row`
+      "SELECT id, term, definition, createdAt, updatedAt FROM flashcards WHERE id = ?",
+      id,
+    );
+    if (!row) {
+      return null;
+    }
+    return {
+      ...row,
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt),
+    };
   }
 
   /**
@@ -56,18 +106,27 @@ export class FlashcardService {
    * @param data - The data for the new flashcard
    * @returns The created flashcard
    */
-  create(data: CreateFlashcardDto): Flashcard {
-    const now = new Date();
-    const flashcard: Flashcard = {
-      id: this.nextId++,
+  async create(data: CreateFlashcardDto): Promise<Flashcard> {
+    const now = new Date().toISOString();
+    const result = await this.db.run(
+      "INSERT INTO flashcards (term, definition, createdAt, updatedAt) VALUES (?, ?, ?, ?)",
+      data.term.trim(),
+      data.definition.trim(),
+      now,
+      now,
+    );
+
+    if (!result.lastID) {
+      throw new Error("Failed to create flashcard: No lastID returned");
+    }
+
+    return {
+      id: result.lastID,
       term: data.term.trim(),
       definition: data.definition.trim(),
-      createdAt: now,
-      updatedAt: now
+      createdAt: new Date(now),
+      updatedAt: new Date(now),
     };
-
-    this.flashcards.push(flashcard);
-    return flashcard;
   }
 
   /**
@@ -76,21 +135,33 @@ export class FlashcardService {
    * @param data - The updated data
    * @returns The updated flashcard if found, null otherwise
    */
-  update(id: number, data: UpdateFlashcardDto): Flashcard | null {
-    const index = this.flashcards.findIndex(card => card.id === id);
-    if (index === -1) {
+  async update(
+    id: number,
+    data: UpdateFlashcardDto,
+  ): Promise<Flashcard | null> {
+    const flashcard = await this.getById(id);
+    if (!flashcard) {
       return null;
     }
 
-    const flashcard = this.flashcards[index];
-    this.flashcards[index] = {
-      ...flashcard,
-      term: data.term?.trim() || flashcard.term,
-      definition: data.definition?.trim() || flashcard.definition,
-      updatedAt: new Date()
-    };
+    const term = data.term?.trim() || flashcard.term;
+    const definition = data.definition?.trim() || flashcard.definition;
+    const updatedAt = new Date().toISOString();
 
-    return this.flashcards[index];
+    await this.db.run(
+      "UPDATE flashcards SET term = ?, definition = ?, updatedAt = ? WHERE id = ?",
+      term,
+      definition,
+      updatedAt,
+      id,
+    );
+
+    return {
+      ...flashcard,
+      term,
+      definition,
+      updatedAt: new Date(updatedAt),
+    };
   }
 
   /**
@@ -98,21 +169,8 @@ export class FlashcardService {
    * @param id - The ID of the flashcard to delete
    * @returns True if deleted, false if not found
    */
-  delete(id: number): boolean {
-    const index = this.flashcards.findIndex(card => card.id === id);
-    if (index === -1) {
-      return false;
-    }
-
-    this.flashcards.splice(index, 1);
-    return true;
-  }
-
-  /**
-   * Gets the total count of flashcards
-   * @returns The number of flashcards
-   */
-  getCount(): number {
-    return this.flashcards.length;
+  async delete(id: number): Promise<boolean> {
+    const result = await this.db.run("DELETE FROM flashcards WHERE id = ?", id);
+    return result.changes !== undefined && result.changes > 0;
   }
 }
