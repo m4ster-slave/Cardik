@@ -16,7 +16,7 @@ import { FlashcardService } from './services/flashcard';
   styleUrl: './app.scss',
 })
 export class App implements OnInit, OnDestroy {
-  protected title = 'Flashcards';
+  protected title = 'Cardik';
 
   showForm = false;
 
